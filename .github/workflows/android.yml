@@ -42,17 +42,16 @@ jobs:
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
           unzip -q cmdline-tools.zip -d cmdline-tools/
           mv cmdline-tools/cmdline-tools cmdline-tools/latest
-          echo "y" | /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          yes | /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
           /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-33"
         env:
           ANDROID_HOME: /home/runner/android-sdk
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
-      - name: Cache Gradle & Buildozer
+      - name: Cache Android SDK & Buildozer
         uses: actions/cache@v4
         with:
           path: |
-            ~/.gradle
             ~/.buildozer
             /home/runner/android-sdk
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
