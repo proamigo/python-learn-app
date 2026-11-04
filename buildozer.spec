@@ -22,7 +22,7 @@ version = 1.0.0
 version.code = 1
 
 # (list) Application requirements
-requirements = python3,kivy==2.3.0,plyer
+requirements = kivy==2.3.0,plyer
 
 # (str) Presplash of the application
 presplash.filename = assets/presplash.png
