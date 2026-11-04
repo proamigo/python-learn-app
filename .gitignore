@@ -1,0 +1,34 @@
+# Build artifacts
+bin/
+build/
+*.apk
+*.aab
+
+# Buildozer cache
+.buildozer/
+.gradle/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local data (progress.json se genera en runtime)
+*.log
+
+# Keystores (si firmas release)
+*.keystore
+*.jks
