@@ -52,6 +52,8 @@ jobs:
         run: |
           mkdir -p /home/runner/.buildozer/android/platform
           ln -sf /home/runner/android-sdk /home/runner/.buildozer/android/platform/android-sdk
+          # buildozer busca sdkmanager en tools/bin, pero el SDK moderno lo tiene en cmdline-tools/latest/bin
+          ln -sf cmdline-tools/latest /home/runner/android-sdk/tools
 
       - name: Cache Android SDK & Buildozer
         uses: actions/cache@v4
