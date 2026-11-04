@@ -24,17 +24,29 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            git zip unzip openjdk-17-jdk python3-pip \
+            git zip unzip openjdk-17-jdk python3-pip wget \
             build-essential libssl-dev libffi-dev \
             libsqlite3-dev libbz2-dev libreadline-dev \
             zlib1g-dev libncurses5-dev libgdbm-dev \
-            libnss3-dev liblzma-dev autoconf automake libtool \
-            android-sdk-platform-tools android-sdk-build-tools
+            libnss3-dev liblzma-dev autoconf automake libtool
 
       - name: Install buildozer
         run: |
           pip install --upgrade pip setuptools wheel cython
           pip install buildozer==1.5.0
+
+      - name: Install Android SDK & accept licenses
+        run: |
+          mkdir -p /home/runner/android-sdk/cmdline-tools
+          cd /home/runner/android-sdk
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d cmdline-tools/
+          mv cmdline-tools/cmdline-tools cmdline-tools/latest
+          echo "y" | /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-33"
+        env:
+          ANDROID_HOME: /home/runner/android-sdk
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
       - name: Cache Gradle & Buildozer
         uses: actions/cache@v4
@@ -42,6 +54,7 @@ jobs:
           path: |
             ~/.gradle
             ~/.buildozer
+            /home/runner/android-sdk
           key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
             ${{ runner.os }}-buildozer-
@@ -49,6 +62,9 @@ jobs:
       - name: Build APK
         run: |
           buildozer -v android debug
+        env:
+          ANDROID_HOME: /home/runner/android-sdk
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
