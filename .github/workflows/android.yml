@@ -48,6 +48,11 @@ jobs:
           ANDROID_HOME: /home/runner/android-sdk
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
+      - name: Link SDK for buildozer
+        run: |
+          mkdir -p /home/runner/.buildozer/android/platform
+          ln -sf /home/runner/android-sdk /home/runner/.buildozer/android/platform/android-sdk
+
       - name: Cache Android SDK & Buildozer
         uses: actions/cache@v4
         with:
