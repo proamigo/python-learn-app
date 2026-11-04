@@ -8,8 +8,8 @@ on:
 jobs:
   build:
     name: Build Debug APK
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
@@ -28,8 +28,8 @@ jobs:
             build-essential libssl-dev libffi-dev \
             libsqlite3-dev libbz2-dev libreadline-dev \
             zlib1g-dev libncurses5-dev libgdbm-dev \
-            libnss3-dev liblzma-dev autoconf automake libtool \
-            libtool-bin libtool-dev autoconf-archive pkg-config
+            libnss3-dev liblzma-dev autoconf automake \
+            libtool libtool-bin libltdl-dev autoconf-archive pkg-config
 
       - name: Install buildozer
         run: |
@@ -55,7 +55,7 @@ jobs:
           ln -sf /home/runner/android-sdk /home/runner/.buildozer/android/platform/android-sdk
           ln -sf cmdline-tools/latest /home/runner/android-sdk/tools
 
-      - name: Clean buildozer cache completely
+      - name: Clean buildozer cache (force fresh build)
         run: |
           rm -rf /home/runner/.buildozer/android/platform/build-*
           rm -rf /home/runner/.buildozer/android/packages/*
@@ -66,9 +66,9 @@ jobs:
           path: |
             ~/.buildozer
             /home/runner/android-sdk
-          key: ${{ runner.os }}-buildozer-v3-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-buildozer-v4-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
-            ${{ runner.os }}-buildozer-v3-
+            ${{ runner.os }}-buildozer-v4-
 
       - name: Build APK
         run: |
@@ -80,6 +80,10 @@ jobs:
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
+        with:
+          name: python-learn-app-apk
+          path: bin/*.apk
+          retention-days: 7
         with:
           name: python-learn-app-apk
           path: bin/*.apk
