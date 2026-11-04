@@ -8,83 +8,25 @@ on:
 jobs:
   build:
     name: Build Debug APK
-    runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    container:
+      image: kivy/buildozer:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.11'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            git zip unzip openjdk-17-jdk python3-pip wget \
-            build-essential libssl-dev libffi-dev \
-            libsqlite3-dev libbz2-dev libreadline-dev \
-            zlib1g-dev libncurses5-dev libgdbm-dev \
-            libnss3-dev liblzma-dev autoconf automake \
-            libtool libtool-bin libltdl-dev autoconf-archive pkg-config
-
-      - name: Install buildozer
-        run: |
-          pip install --upgrade pip setuptools wheel cython
-          pip install buildozer==1.5.0
-
-      - name: Install Android SDK & accept licenses
-        run: |
-          mkdir -p /home/runner/android-sdk/cmdline-tools
-          cd /home/runner/android-sdk
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdline-tools.zip
-          unzip -q cmdline-tools.zip -d cmdline-tools/
-          mv cmdline-tools/cmdline-tools cmdline-tools/latest
-          yes | /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-          /home/runner/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-33"
-        env:
-          ANDROID_HOME: /home/runner/android-sdk
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-
-      - name: Link SDK for buildozer
-        run: |
-          mkdir -p /home/runner/.buildozer/android/platform
-          ln -sf /home/runner/android-sdk /home/runner/.buildozer/android/platform/android-sdk
-          ln -sf cmdline-tools/latest /home/runner/android-sdk/tools
-
-      - name: Clean buildozer cache (force fresh build)
-        run: |
-          rm -rf /home/runner/.buildozer/android/platform/build-*
-          rm -rf /home/runner/.buildozer/android/packages/*
-
-      - name: Cache Android SDK & Buildozer
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.buildozer
-            /home/runner/android-sdk
-          key: ${{ runner.os }}-buildozer-v4-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-v4-
-
-      - name: Build APK
-        run: |
-          buildozer -v android debug
-        env:
-          ANDROID_HOME: /home/runner/android-sdk
-          ANDROID_SDK_ROOT: /home/runner/android-sdk
-          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+          command: buildozer android debug
+          buildozer_version: stable
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: python-learn-app-apk
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
           retention-days: 7
-        with:
-          name: python-learn-app-apk
-          path: bin/*.apk
-          retention-days: 7
+
