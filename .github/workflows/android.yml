@@ -28,7 +28,8 @@ jobs:
             build-essential libssl-dev libffi-dev \
             libsqlite3-dev libbz2-dev libreadline-dev \
             zlib1g-dev libncurses5-dev libgdbm-dev \
-            libnss3-dev liblzma-dev autoconf automake libtool
+            libnss3-dev liblzma-dev autoconf automake libtool \
+            libtool-bin autoconf-archive
 
       - name: Install buildozer
         run: |
@@ -52,7 +53,6 @@ jobs:
         run: |
           mkdir -p /home/runner/.buildozer/android/platform
           ln -sf /home/runner/android-sdk /home/runner/.buildozer/android/platform/android-sdk
-          # buildozer busca sdkmanager en tools/bin, pero el SDK moderno lo tiene en cmdline-tools/latest/bin
           ln -sf cmdline-tools/latest /home/runner/android-sdk/tools
 
       - name: Cache Android SDK & Buildozer
